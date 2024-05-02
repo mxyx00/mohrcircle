@@ -1,0 +1,59 @@
+clc; clear all
+
+[average_stress, max_shear,sigma_1,sigma_2,sigma_1new,sigma_2new] = mohrcircle(40,-60,20,45)
+
+function [average_stress, max_shear,sigma_1,sigma_2,sigma_1_rotated,sigma_2_rotated] = mohrcircle(stress_x,stress_y,shear_xy,angle)
+        
+    center_x = (stress_x + stress_y)/2;
+    center_y = 0;
+    radius = sqrt((stress_x-center_x)^2+(shear_xy)^2);
+    phi = angle + atand(shear_xy/(stress_x-center_x));
+
+
+    theta = linspace(0,360,100);
+
+    for i = 1:length(theta)
+        x(i) = center_x + radius*cosd(theta(i));
+        y(i) = center_y + radius*sind(theta(i));     
+    end
+
+    
+    rotated_x = center_x + radius*cosd(-phi);
+    rotated_y = center_x - radius*cosd(phi);
+    rotated_shear = radius*sind(phi);
+
+    phi2 = 90-phi;
+
+
+    y2 = radius*sind(phi2);
+    x2 = radius*cosd(phi2);
+
+    sigma1 = center_x-y2;
+    sigma2 = center_x+y2;
+
+    plot(x,y)
+    axis equal
+    hold on
+    plot(stress_x,-shear_xy,'o','Color','r')
+    plot(stress_y,shear_xy,'o','Color','r')
+    plot(rotated_x,-rotated_shear,'o','Color','g')
+    plot(rotated_y,rotated_shear,'o','Color','g')
+    yline(0)
+    xline(0)
+    xline(center_x,':')
+    plot([stress_x stress_y], [-shear_xy shear_xy])
+    plot([rotated_x rotated_y], [-rotated_shear rotated_shear])
+    legend("Circle", "X Plane", "Y Plane","Rotated X Plane", "Rotated Y Plane")
+    title("Mohr's Circle")
+    msg = ["Inputs: sigma_x = " + stress_x + " sigma_y = " + stress_y + " shear stress = " + shear_xy + " rotation angle = " + angle];
+    subtitle(msg)
+
+    %% Answers
+    average_stress = center_x;
+    max_shear = radius;
+    sigma_1 = radius+center_x;
+    sigma_2 = -(radius-center_x);
+    sigma_1_rotated = sigma1;
+    sigma_2_rotated = sigma2;
+    
+end
